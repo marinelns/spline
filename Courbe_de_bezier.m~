@@ -20,6 +20,8 @@ while K~=4 %arreter
  
       %Points de controle
       matrice_pk = [0,0];
+      
+      
       annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les points', 'Fontsize', 12, ...
            'FitBoxToText', 'on', 'Tag', 'EntrerPC');
       for i=1:999         %on limite le nombre de points de controle a 1000
@@ -34,7 +36,6 @@ while K~=4 %arreter
       end
       plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
       matrice_pk
-      matrice_pk(:,1)
       
       %Tangentes
       %tangentes internes
@@ -50,26 +51,23 @@ while K~=4 %arreter
       matrice_mk(1,1)= X - matrice_pk(1,1);
       matrice_mk(2,1) = Y - matrice_pk(2,1);
 	  plot(matrice_mk(1,1) + matrice_pk(1,1),matrice_mk(2,1) + matrice_pk(2,1),'x') %affichage du point extreme de tangente 1
-      %affichage de la premiere tangente
-      tangente_extremite = [[X;Y],matrice_pk(:,1)];
-      plot(tangente_extremite(1,1:2),tangente_extremite(2,1:2),'r--'); 
+      %affichage de la premiere tangente TODO
       
-      %derniere tangente
+      plot(matrice_mk(1,1:2),matrice_mk(2,1:2),'r--') 
+      %deuxieme tangente
       [X,Y]=ginput(1);
       nbpoints = size(matrice_mk, 2);
       matrice_mk(1,nbpoints)= X - matrice_pk(1,nbpoints);
       matrice_mk(2,nbpoints) = Y - matrice_pk(2,nbpoints);
 	  plot(matrice_mk(1,nbpoints) + matrice_pk(1,nbpoints),matrice_mk(2,nbpoints) + matrice_pk(2,nbpoints),'x') %affichage du extreme de tangente 1
-      %affichage de la derniere tangente
-      tangente_extremite = [[X;Y],matrice_pk(:,nbpoints)];
-      plot(tangente_extremite(1,1:2),tangente_extremite(2,1:2),'r--');
+      plot(matrice_mk(1,1:2),matrice_mk(2,1:2),'r--') %affichage de la premiere tangente TODO
       delete(findall(gcf,'Tag','EntrerT'))
+
       
-      for i=1:nbpoints-1
-          Hermite_points = hermite(matrice_pk(:,1:2), matrice_mk, c, 0, resolution);
-          figure(1)
-          plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2})
-      end
+      Hermite_points = hermite(matrice_mk, c, 0, resolution);
+      figure(1)
+      plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2})
+       
       %courbure
       x = Hermite_points(1,:);
       y = Hermite_points(2,:);

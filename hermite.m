@@ -2,11 +2,6 @@ function [Hermite_points] = hermite(Pk, c, choix_estimation, res)
     mk = 0;
     N = size(Pk, 2);
     
-    if (choix_estimation == 1)   %si on utilise notre estimation (cf Q3)
-        mk = estimation(Pk);
-    else   %si on utilise cardinal splines
-        mk = cardinal_spline(Pk, c);
-    end
     
     for i = 2: N-2
         point(1, 1) = Pk(1, i);
@@ -24,7 +19,7 @@ function [Hermite_points] = hermite(Pk, c, choix_estimation, res)
         if i==2
             Hermite_points = decasteljau(point, res);
         else
-            Hermite_points = [Hermite_points decasteljau(point,res)]
+            Hermite_points = [Hermite_points decasteljau(point,res)];
         end
     end
 end
