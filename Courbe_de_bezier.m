@@ -65,7 +65,13 @@ while K~=4 %arreter
       
       for i=1:nbpoints-1
         bk = hermite(matrice_pk(:,i:i+1),matrice_mk(:,i:i+1));
+        interpolation_hermite_morceau = [0;0];
+        for j=1:resolution
+            interpolation_hermite_morceau(:,j) = interpolation_hermite(bk,j/resolution);
+        end
+        plot(interpolation_hermite_morceau,'r--');
       end
+      
       %courbure
       x = Hermite_points(1,:);
       y = Hermite_points(2,:);
@@ -109,8 +115,6 @@ while K~=4 %arreter
          plot(matrice_pk(1,i),matrice_pk(2,i),'o') %affichage du point de controle i
       end
       plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
-      matrice_pk
-      matrice_pk(:,1)
       
       %Tangentes
       %tangentes internes
