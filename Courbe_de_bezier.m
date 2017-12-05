@@ -1,4 +1,4 @@
-function []= Courbe_de_bezier()
+  function []= Courbe_de_bezier()
 
 resolution=10;       %nombre de points evalues sur la courbe de Bezier
 K=0;              %variable d'etat
@@ -7,7 +7,7 @@ matrice = [0,0];
 curve = [0,0];   %ensemble des points de controle
 
 while K~=4 %arreter
-   K=menu('Que voulez-vous faire ?','NEW -cardinal splines-  (bouton souris, puis <ENTER>', 'NEW -autre calcul des tangentes','Superposer une autre courbe','ARRETER');
+   K=menu('Que voulez-vous faire ?','NEW -cardinal splines-  (bouton souris, puis <ENTER>', 'NEW -notre calcul des tangentes','Superposer une autre courbe','ARRETER');
    if K==1 %new
       figure(1)
       clf;                  %affichage d'une fenetre vide
@@ -15,7 +15,7 @@ while K~=4 %arreter
       axis([0 10 0 10])    %les axes sont definitivement fixes
       axis off
       
-      c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ? (r,m,c,b,g,y,k)'});
+      c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ? (r,m,c,b,g,y,k)'});   
       c=str2num(c_couleur{1});
  
       %Points de controle
@@ -92,46 +92,60 @@ while K~=4 %arreter
       hold on              
       axis([0 10 0 10])    
       axis off
-      matrice = [0,0];
       
       %Points de controle
-      %annotation('textbox', [0.3 0.9 .1 .1], 'FitHeightToText', 'ON', 'Fontsize', 12, ...
-           %'String', 'Entrer les points de controle', 'Tag', 'EntrerPC');
-      for i = 2:999         
-         [X,Y] = ginput(1);  
-         if isempty(X)     
+      %Points de controle
+      matrice_pk = [0,0];
+      annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les points', 'Fontsize', 12, ...
+           'FitBoxToText', 'on', 'Tag', 'EntrerPC');
+      for i=1:999         %on limite le nombre de points de controle a 1000
+         [X,Y]=ginput(1);  %prise en compte d'un clic de souris
+         if isempty(X)     %si on appuie sur <ENTER>
             break
          end
-      matrice(1,i) = X;
-      matrice(2,i) = Y;
-      figure(1)
-	  plot(matrice(1,i),matrice(2,i),'o') %affichage du point de controle i
-      plot(matrice(1,2:i),matrice(2,2:i),'b') %affichage du polygone de controle
+         matrice_pk(1,i)=X;   %coordonnees x des points de controle
+         matrice_pk(2,i)=Y;   %coordonnees y des points de controle
+         figure(1);
+         plot(matrice_pk(1,i),matrice_pk(2,i),'o') %affichage du point de controle i
       end
-  
-  
+      plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
+      matrice_pk
+      matrice_pk(:,1)
+      
       %Tangentes
+      %tangentes internes
+      matrice_mk = estimation(matrice_pk) %A CHANGER POUR METHODE CALCUL TANGENTES
+      
       delete(findall(gcf,'Tag','EntrerPC'));
-      %annotation('textbox', [0.35 0.9 .1 .1], 'FitHeightToText', 'ON', 'Fontsize', 12, ...
-          %'String', 'Entrer les tangentes', 'Tag', 'EntrerTG');
-      [X,Y] = ginput(1);
-      matrice(1,1) = X;
-      matrice(2,1) = Y;
-	  plot(matrice(1,1),matrice(2,1),'x') %affichage du point 1
-      plot(matrice(1,1:2),matrice(2,1:2),'r--') %affichage de la premiere tangente
-      [X,Y] = ginput(1);
-      nbpoints = size(matrice, 2)+1;
-      matrice(1,nbpoints)=X;
-      matrice(2,nbpoints)=Y;
-	  plot(matrice(1,nbpoints),matrice(2,nbpoints),'x') %affichage du point 2
-      plot(matrice(1,nbpoints-1:nbpoints),matrice(2,nbpoints-1:nbpoints),'r--') %affichage de la deuxieme tangente
-      
-      delete(findall(gcf,'Tag','EntrerTG'))
+      annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les tangentes', 'Fontsize', 12, ...
+           'FitBoxToText', 'on', 'Tag', 'EntrerT');
        
-      Hermite_points = hermite(matrice, c, 1, resolution);
-      figure(1)
-      plot(Hermite_points(1,:), Hermite_points(2,:), couleur{1})
+      %tangentes extermes donnees par user
+      %premiere tangente
+      [X,Y]=ginput(1);
+      matrice_mk(1,1)= X - matrice_pk(1,1);
+      matrice_mk(2,1) = Y - matrice_pk(2,1);
+	  plot(matrice_mk(1,1) + matrice_pk(1,1),matrice_mk(2,1) + matrice_pk(2,1),'x') %affichage du point extreme de tangente 1
+      %affichage de la premiere tangente
+      tangente_extremite = [[X;Y],matrice_pk(:,1)];
+      plot(tangente_extremite(1,1:2),tangente_extremite(2,1:2),'r--'); 
       
+      %derniere tangente
+      [X,Y]=ginput(1);
+      nbpoints = size(matrice_mk, 2);
+      matrice_mk(1,nbpoints)= X - matrice_pk(1,nbpoints);
+      matrice_mk(2,nbpoints) = Y - matrice_pk(2,nbpoints);
+	  plot(matrice_mk(1,nbpoints) + matrice_pk(1,nbpoints),matrice_mk(2,nbpoints) + matrice_pk(2,nbpoints),'x') %affichage du extreme de tangente 1
+      %affichage de la derniere tangente
+      tangente_extremite = [[X;Y],matrice_pk(:,nbpoints)];
+      plot(tangente_extremite(1,1:2),tangente_extremite(2,1:2),'r--');
+      delete(findall(gcf,'Tag','EntrerT'))
+      
+      for i=1:nbpoints-1
+          Hermite_points = hermite(matrice_pk(:,1:2), matrice_mk, c, 0, resolution);
+          figure(1)
+          plot(Hermite_points(1,:), Hermite_points(2,:), couleur{1})
+      end
       %courbure
       x = Hermite_points(1,:);
       y = Hermite_points(2,:);
@@ -148,8 +162,6 @@ while K~=4 %arreter
       curve(1) = curve(2);
       curve(size(x,2)) = curve(size(x,2)-1);
       figure(2)
-      clf;
-      hold on
       plot(curve, couleur{1});
       
    elseif K==3 %ajouter une courbe
