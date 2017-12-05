@@ -1,25 +1,16 @@
-function [Hermite_points] = hermite(Pk, c, choix_estimation, res)
-    mk = 0;
-    N = size(Pk, 2);
-    
-    
-    for i = 2: N-2
-        point(1, 1) = Pk(1, i);
-        point(2, 1) = Pk(2, i);
+function [bk] = hermite(pk, mk)
+    %calcule les 4 points de contrôle de l'interpolation pour un morceau
+    %de la courbe
+    bk = [0;0]
+    bk(1, 1) = Pk(1, 1);
+    bk(2, 1) = Pk(2, 1);
         
-        point(1, 2) = Pk(1, i) + (1/3) * mk(1, i);
-        point(2, 2) = Pk(1, i) + (1/3) * mk(2, i);
+    bk(1, 2) = Pk(1, 1) + (1/3) * mk(1, 1) 
+    bk(2, 2) = Pk(1, 1) + (1/3) * mk(2, 1);
         
-        point(1, 3) = Pk(1, i+1) - (1/3) * mk(1, i+1);
-        point(2, 3) = Pk(2, i+1) - (1/3) * mk(2, i+1);
+    bk(1, 3) = Pk(1, 1+1) - (1/3) * mk(1, 1+1);
+    bk(2, 3) = Pk(2, 1+1) - (1/3) * mk(2, 1+1);
         
-        point(1, 4) = Pk(1, i+1);
-        point(2, 4) = Pk(2, i+1);
-
-        if i==2
-            Hermite_points = decasteljau(point, res);
-        else
-            Hermite_points = [Hermite_points decasteljau(point,res)];
-        end
-    end
+    bk(1, 4) = Pk(1, 1+1);
+    bk(2, 4) = Pk(2, 1+1);
 end

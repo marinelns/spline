@@ -33,12 +33,10 @@ while K~=4 %arreter
          plot(matrice_pk(1,i),matrice_pk(2,i),'o') %affichage du point de controle i
       end
       plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
-      matrice_pk
-      matrice_pk(:,1)
       
       %Tangentes
       %tangentes internes
-      matrice_mk = estimation(matrice_pk) %A CHANGER POUR METHODE CALCUL TANGENTES
+      matrice_mk = cardinal_spline(matrice_pk) %A CHANGER POUR METHODE CALCUL TANGENTES
       
       delete(findall(gcf,'Tag','EntrerPC'));
       annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les tangentes', 'Fontsize', 12, ...
@@ -66,9 +64,7 @@ while K~=4 %arreter
       delete(findall(gcf,'Tag','EntrerT'))
       
       for i=1:nbpoints-1
-          Hermite_points = hermite(matrice_pk(:,1:2), matrice_mk, c, 0, resolution);
-          figure(1)
-          plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2})
+        bk = hermite(matrice_pk(:,i:i+1),matrice_mk(:,i:i+1));
       end
       %courbure
       x = Hermite_points(1,:);
