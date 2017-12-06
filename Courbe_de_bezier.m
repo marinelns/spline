@@ -7,7 +7,8 @@ matrice = [0,0];
 curve = [0,0];   %ensemble des points de controle
 
 while K~=4 %arreter
-   K=menu('Que voulez-vous faire ?','NEW -cardinal splines-  (bouton souris, puis <ENTER>', 'NEW -notre calcul des tangentes','Superposer une autre courbe','ARRETER');
+   K=menu('Que voulez-vous faire ?','NEW -cardinal splines-  (bouton souris, puis <ENTER>', 'NEW -notre calcul des tangentes-',...
+           'NEW -interpolation de Lagrange','Superposer une autre courbe','ARRETER');
    figure(1)
    clf;                  %affichage d'une fenetre vide
    hold on;              %tous les plot seront executes sur cette meme fenetre
@@ -91,16 +92,21 @@ while K~=4 %arreter
    curve(size(x,2)) = curve(size(x,2)-1);
    figure(2)
    plot(curve, c_couleur{2});
-           
-   if K==3 %ajouter une courbe
-      c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ?(r,m,c,b,g,y,k)'});
-      c=str2num(c_couleur{1});
-      Hermite_points = hermite(matrice, c, 0, resolution);
-      figure(1)
-      plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2});
-      x = Hermite_points(1,:)
-      y = Hermite_points(2,:)
-      for i = 2:size(x,2)-1
+   
+   if K==3 %interpolation de Lagrange
+       
+       couleur = inputdlg({'Couleur du tracé ? (r,m,c,b,g,y,k)'});
+       
+       for t=1:resolution
+           Pk = aitken(matrice_pk,t);
+           plot(Pk(1,t));
+           plot(Pk(2,t));
+           x(1,t) =  Pk(1,t);
+           y(1,t) =  Pk(2,t);
+       end
+       
+       %courbure
+       for i = 2:size(x,2)-1
           xmoins = x(i) - x(i-1);
           xplus = x(i+1) - x(i);
           ymoins = y(i) - y(i-1);
@@ -109,11 +115,45 @@ while K~=4 %arreter
           ydist = y(i-1) - y(i+1);
           curve(i) = 2*(xmoins*yplus - xplus*ymoins);
           curve(i) = curve(i) / sqrt((xmoins^2 + ymoins^2)*(xplus^2 + yplus^2)*(xdist^2 + ydist^2));
+       end
+       curve(1) = curve(2);
+       curve(size(x,2)) = curve(size(x,2)-1);
+       figure(2)
+       plot(curve, couleur{1});
+   
+   end 
+   
+   
+   if K==4 %ajouter une courbe
+      L = menu('Quelle courbe voulez-cous superposer?','Spline Hermite avec cardinal splines', 'Spline hermite avec notre methode', 'interpolation de Lagrange');
+      if L==1 | L==2
+          c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ?(r,m,c,b,g,y,k)'});
+          c=str2num(c_couleur{1});
+          if L==1
+            Hermite_points = hermite(matrice, c, 0, resolution);
+          end
+          if L==2
+            Hermite_points = hermite(matrice, c, 1, resolution); 
+          end
+          figure(1)
+          plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2});
+          x = Hermite_points(1,:)
+          y = Hermite_points(2,:)
+          for i = 2:size(x,2)-1
+              xmoins = x(i) - x(i-1);
+              xplus = x(i+1) - x(i);
+              ymoins = y(i) - y(i-1);
+              yplus = y(i+1) - y(i);
+              xdist = x(i-1) - x(i+1);
+              ydist = y(i-1) - y(i+1);
+              curve(i) = 2*(xmoins*yplus - xplus*ymoins);
+              curve(i) = curve(i) / sqrt((xmoins^2 + ymoins^2)*(xplus^2 + yplus^2)*(xdist^2 + ydist^2));
+          end
+          curve(1) = curve(2);
+          curve(size(x,2)) = curve(size(x,2)-1);
+          figure(2)
+          plot(curve, c_couleur{2});
       end
-      curve(1) = curve(2);
-      curve(size(x,2)) = curve(size(x,2)-1);
-      figure(2)
-      plot(curve, c_couleur{2});
    end
   end
  close 
