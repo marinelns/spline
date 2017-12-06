@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 function [points_interpol] = interpolation_hermite(bk,resolution)
     %calcule les points de l'interpolation d'hermite sur un morceau
     % defini par ses pts de control
