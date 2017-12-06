@@ -7,33 +7,37 @@ matrice = [0,0];
 curve = [0,0];   %ensemble des points de controle
 
 while K~=4 %arreter
-   K=menu('Que voulez-vous faire ?','NEW -cardinal splines-  (bouton souris, puis <ENTER>', 'NEW -notre calcul des tangentes','Superposer une autre courbe','ARRETER');
-   if K==1 | K==2 
-       figure(1)
-       clf;                  %affichage d'une fenetre vide
-       hold on;              %tous les plot seront executes sur cette meme fenetre
-       axis([0 10 0 10])    %les axes sont definitivement fixes
-       axis on;
-       c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ? (r,m,c,b,g,y,k)'});   
-       c=str2num(c_couleur{1});
+   K=menu('Que voulez-vous faire ?','Partir de zero', 'Superposer une autre courbe','changer les parametres des derniers points','ARRETER');
+   methode_interpolation=menu('Quelle Methode souhaitez-vous utiliser ?', 'Hermite', 'Lagrange');
+   figure(1)
+   if K==1
+    clf;                  %affichage d'une fenetre vide
+   end
+   hold on;              %tous les plot seront executes sur cette meme fenetre
+   axis([0 10 0 10])    %les axes sont definitivement fixes
+   axis on;
+   c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ? (r,m,c,b,g,y,k)'});   
+   c=str2num(c_couleur{1});
 
-       %Points de controle
-       matrice_pk = [0,0];
-       annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les points', 'Fontsize', 12, ...
-           'FitBoxToText', 'on', 'Tag', 'EntrerPC');
-       for i=1:999         %on limite le nombre de points de controle a 1000
-          [X,Y]=ginput(1);  %prise en compte d'un clic de souris
-          if isempty(X)     %si on appuie sur <ENTER>
-             break
-          end
-          matrice_pk(1,i)=X;   %coordonnees x des points de controle
-          matrice_pk(2,i)=Y;   %coordonnees y des points de controle
-          figure(1);
-          plot(matrice_pk(1,i),matrice_pk(2,i),'o') %affichage du point de controle i
-       end
-       plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
+   %Points de controle
+   matrice_pk = [0,0];
+   annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les points', 'Fontsize', 12, ...
+       'FitBoxToText', 'on', 'Tag', 'EntrerPC');
+   for i=1:999         %on limite le nombre de points de controle a 1000
+      [X,Y]=ginput(1);  %prise en compte d'un clic de souris
+      if isempty(X)     %si on appuie sur <ENTER>
+         break
+      end
+      matrice_pk(1,i)=X;   %coordonnees x des points de controle
+      matrice_pk(2,i)=Y;   %coordonnees y des points de controle
+      figure(1);
+      plot(matrice_pk(1,i),matrice_pk(2,i),'o') %affichage du point de controle i
+   end
+   plot(matrice_pk(1,:),matrice_pk(2,:),'b') %affichage du polygone de controle
 
-      %Tangentes
+
+   if methode_interpolation==1
+       %Tangentes
        %tangentes internes
        if K==1 %new   
           matrice_mk = cardinal_spline(matrice_pk,c)    
@@ -45,7 +49,7 @@ while K~=4 %arreter
        delete(findall(gcf,'Tag','EntrerPC'));
        annotation('textbox', [0.35 0.9 .1 .1], 'String', 'Entrer les tangentes', 'Fontsize', 12, ...
                'FitBoxToText', 'on', 'Tag', 'EntrerT');
-           
+
        %tangentes extermes donnees par user
        %premiere tangente
        [X,Y]=ginput(1);
@@ -66,13 +70,12 @@ while K~=4 %arreter
        plot(tangente_extremite(1,1:2),tangente_extremite(2,1:2),'r--');
        delete(findall(gcf,'Tag','EntrerT'))
 
-       for i=1:nbpoints-1
-         matrice_pk(:,i:i+1);
-         matrice_mk(:,i:i+1);
-         bk = hermite(matrice_pk(:,i:i+1),matrice_mk(:,i:i+1));
-         interpolation_hermite_morceau = interpolation_hermite(bk,resolution);
-         plot(interpolation_hermite_morceau(1,:),interpolation_hermite_morceau(2,:),'r');
-       end
+   for i=1:nbpoints-1
+     matrice_pk(:,i:i+1);
+     matrice_mk(:,i:i+1);
+     bk = hermite(matrice_pk(:,i:i+1),matrice_mk(:,i:i+1));
+     interpolation_hermite_morceau = interpolation_hermite(bk,resolution);
+     plot(interpolation_hermite_morceau(1,:),interpolation_hermite_morceau(2,:),'r');
    end
       
    
@@ -105,39 +108,6 @@ while K~=4 %arreter
        plot(curve, couleur{1});
    
    end 
-   
-   
-   if K==4 %ajouter une courbe
-      L = menu('Quelle courbe voulez-cous superposer?','Spline Hermite avec cardinal splines', 'Spline hermite avec notre methode', 'interpolation de Lagrange');
-      if L==1 | L==2
-          c_couleur = inputdlg({'Valeur de c ?', 'Couleur du tracé ?(r,m,c,b,g,y,k)'});
-          c=str2num(c_couleur{1});
-          if L==1
-            Hermite_points = hermite(matrice, c, 0, resolution);
-          end
-          if L==2
-            Hermite_points = hermite(matrice, c, 1, resolution); 
-          end
-          figure(1)
-          plot(Hermite_points(1,:), Hermite_points(2,:), c_couleur{2});
-          x = Hermite_points(1,:)
-          y = Hermite_points(2,:)
-          for i = 2:size(x,2)-1
-              xmoins = x(i) - x(i-1);
-              xplus = x(i+1) - x(i);
-              ymoins = y(i) - y(i-1);
-              yplus = y(i+1) - y(i);
-              xdist = x(i-1) - x(i+1);
-              ydist = y(i-1) - y(i+1);
-              curve(i) = 2*(xmoins*yplus - xplus*ymoins);
-              curve(i) = curve(i) / sqrt((xmoins^2 + ymoins^2)*(xplus^2 + yplus^2)*(xdist^2 + ydist^2));
-          end
-          curve(1) = curve(2);
-          curve(size(x,2)) = curve(size(x,2)-1);
-          figure(2)
-          plot(curve, c_couleur{2});
-      end
-   end
   end
   close 
 end
