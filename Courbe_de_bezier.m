@@ -9,10 +9,12 @@ curve = [0,0];   %ensemble des points de controle
 while K~=4 %arreter
    K=menu('Que voulez-vous faire ?','Partir de zero', 'Superposer une autre courbe','changer les parametres des derniers points','ARRETER');
    methode_interpolation=menu('Quelle Methode souhaitez-vous utiliser ?', 'Hermite', 'Lagrange');
-   methode_tangente = 0
-   c = 0
+   methode_tangente = 0;
+   c = 0;
+   ask_couleur = inputdlg({'Quelle couleur choisir pour le tracé ? (r,m,g,b,c,y,k)'});
+   couleur = ask_couleur{1};
    if methode_interpolation == 1
-        methode_tangente = menu('Comment choisir les tangentes ?', 'Estimation personnelle', 'Cardinal Spline')
+        methode_tangente = menu('Comment choisir les tangentes ?', 'Estimation personnelle', 'Cardinal Spline');
 		if methode_tangente == 2
             ask_c =  inputdlg({'Valeur de c ?'});
             c = str2num(ask_c{1});
@@ -80,6 +82,7 @@ while K~=4 %arreter
    end
    
    resultat_interpolation = [];
+   nbpoints = size(matrice_pk,2);
    for i=1:nbpoints-1
      %resultat_interpolation stock tous les points d'interpolation
      if methode_interpolation == 1
@@ -90,41 +93,29 @@ while K~=4 %arreter
          resultat_interpolation = [resultat_interpolation interpolation_hermite_morceau];
      end
 	 if methode_interpolation == 2
-        resultat_interpolation = lagrange(matrice_pk, resolution);
+        resultat_interpolation = interpolation_aitken(matrice_pk, resolution);
 	 end
-     plot(resultat_interpolation(1,:), resultat_interpolation(2,:),'r');
+     plot(resultat_interpolation(1,:), resultat_interpolation(2,:),couleur);
    end
-      
+   %plot Courbure
+   x = resultat_interpolation(1,:);
+   y = resultat_interpolation(2,:);
+   for i = 2:size(x,2)-1
+      xmoins = x(i) - x(i-1);
+      xplus = x(i+1) - x(i);
+      ymoins = y(i) - y(i-1);
+      yplus = y(i+1) - y(i);
+      xdist = x(i-1) - x(i+1);
+      ydist = y(i-1) - y(i+1);
+      curve(i) = 2*(xmoins*yplus - xplus*ymoins);
+      curve(i) = curve(i) / sqrt((xmoins^2 + ymoins^2)*(xplus^2 + yplus^2)*(xdist^2 + ydist^2));
+   end
+   curve(1) = curve(2);
+   curve(size(x,2)) = curve(size(x,2)-1);
+   figure(2)
+   hold on;
+   plot(curve, color);      
    
-
-   if K==7 %interpolation de Lagrange (a mettre juste au dessus dans le cas methode_interpolation = 2
-       couleur = inputdlg({'Couleur du tracé ? (r,m,c,b,g,y,k)'});
-       
-       for t=1:resolution
-           Pk = aitken(matrice_pk,t);
-           plot(Pk(1,t));
-           plot(Pk(2,t));
-           x(1,t) =  Pk(1,t);
-           y(1,t) =  Pk(2,t);
-       end
-       
-       %courbure 
-       for i = 2:size(x,2)-1
-          xmoins = x(i) - x(i-1);
-          xplus = x(i+1) - x(i);
-          ymoins = y(i) - y(i-1);
-          yplus = y(i+1) - y(i);
-          xdist = x(i-1) - x(i+1);
-          ydist = y(i-1) - y(i+1);
-          curve(i) = 2*(xmoins*yplus - xplus*ymoins);
-          curve(i) = curve(i) / sqrt((xmoins^2 + ymoins^2)*(xplus^2 + yplus^2)*(xdist^2 + ydist^2));
-       end
-       curve(1) = curve(2);
-       curve(size(x,2)) = curve(size(x,2)-1);
-       figure(2)
-       plot(curve, couleur{1});
-   
-   end 
   end
   close 
 end
