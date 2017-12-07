@@ -114,7 +114,7 @@ while K~=4 %arreter
    curve(size(x,2)) = curve(size(x,2)-1);
    figure(2)
    hold on;
-   plot(curve, color);      
+   plot(curve, couleur);      
    
   end
   close 
