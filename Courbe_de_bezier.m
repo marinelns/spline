@@ -13,7 +13,7 @@ while K~=4 %arreter
    c = 0
    if methode_interpolation == 1
         methode_tangente = menu('Comment choisir les tangentes ?', 'Estimation personnelle', 'Cardinal Spline')
-		if methode_tangente == 2 
+		if methode_tangente == 2
             ask_c =  inputdlg({'Valeur de c ?'});
             c = str2num(ask_c{1});
         end
@@ -88,7 +88,7 @@ while K~=4 %arreter
 		 bk = hermite(matrice_pk(:,i:i+1),matrice_mk(:,i:i+1));
 		 interpolation_hermite_morceau = interpolation_hermite(bk,resolution);
          resultat_interpolation = [resultat_interpolation interpolation_hermite_morceau];
-	 end
+     end
 	 if methode_interpolation == 2
         resultat_interpolation = lagrange(matrice_pk, resolution);
 	 end
@@ -96,8 +96,8 @@ while K~=4 %arreter
    end
       
    
+
    if K==7 %interpolation de Lagrange (a mettre juste au dessus dans le cas methode_interpolation = 2
-       
        couleur = inputdlg({'Couleur du tracé ? (r,m,c,b,g,y,k)'});
        
        for t=1:resolution
