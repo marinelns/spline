@@ -4,7 +4,9 @@ function [mk] = estimation(Pk)
     mk = [0,0];
     N = size(Pk,2);
     for k=2 : N-1
-        mk(:, k) = (Pk(:, k+1) - Pk(:, k-1))/2;
+        mk(1, k) = (Pk(1, k+1) - Pk(1, k-1))/2;
+        mk(2, k) = (Pk(2, k+1) - Pk(2, k-1))/2;
     end
-    mk(:,N) = 0;
+    mk(1,N) = 0;
+    mk(2,N) = 0;
 end
